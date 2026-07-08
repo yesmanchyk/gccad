@@ -5,20 +5,65 @@
 
 namespace func {
 
-constexpr float exp_helper_derivative(float x) {
-  // Symbolic derivative generated at compile time via C++26 reflection
-  return exp(x);
-}
+struct exp_helper_functor {
+  float x;
+  float x_grad = 0.0f;
 
-constexpr float sigmoid_derivative(float x) {
-  // Symbolic derivative generated at compile time via C++26 reflection
-  return (exp_helper(-(x))) * (-(1.0f));
-}
+  constexpr float operator()(float x) {
+    this->x = x;
+    return exp(x);
+  }
 
-constexpr float custom_poly_derivative(float x) {
-  // Symbolic derivative generated at compile time via C++26 reflection
-  return ((x) + (x)) + (2.0e+0f);
-}
+  constexpr void backward(float out_grad = 1.0f) {
+    this->x_grad += (exp(x)) * out_grad;
+  }
+};
+
+struct sigmoid_functor {
+  float x;
+  float x_grad = 0.0f;
+
+  constexpr float operator()(float x) {
+    this->x = x;
+    return ((exp_helper(-(x)) + 1.0e+0f) + 1.0e+0f);
+  }
+
+  constexpr void backward(float out_grad = 1.0f) {
+    this->x_grad += ((exp_helper(-(x))) * (-(1.0f))) * out_grad;
+  }
+};
+
+struct custom_poly_functor {
+  float x;
+  float x_grad = 0.0f;
+
+  constexpr float operator()(float x) {
+    this->x = x;
+    return ((x * x) + (x * 2.0e+0f));
+  }
+
+  constexpr void backward(float out_grad = 1.0f) {
+    this->x_grad += (((x) + (x)) + (2.0e+0f)) * out_grad;
+  }
+};
+
+struct linear_poly_functor {
+  float x;
+  float x_grad = 0.0f;
+  float y;
+  float y_grad = 0.0f;
+
+  constexpr float operator()(float x, float y) {
+    this->x = x;
+    this->y = y;
+    return ((x * y) + (x * 3.0e+0f));
+  }
+
+  constexpr void backward(float out_grad = 1.0f) {
+    this->x_grad += ((y) + (3.0e+0f)) * out_grad;
+    this->y_grad += (x) * out_grad;
+  }
+};
 
 } // namespace func
 

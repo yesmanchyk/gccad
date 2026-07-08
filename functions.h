@@ -17,6 +17,10 @@ constexpr float custom_poly(float x) {
   return x * x + 2.0f * x;
 }
 
+constexpr float linear_poly(float x, float y) {
+  return x * y + 3.0f * x;
+}
+
 } // namespace func
 
 #endif // FUNCTIONS_H

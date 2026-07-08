@@ -195,4 +195,24 @@ consteval fixed_string differentiate_function(info func_reflection) {
   return "0.0f";
 }
 
+consteval fixed_string differentiate_function_wrt(info func_reflection, info var_info) {
+  info body = body_of(func_reflection);
+  for (info stmt : statements_of(body)) {
+    if (is_expression(stmt)) {
+      return differentiate_expr(stmt, var_info);
+    }
+  }
+  return "0.0f";
+}
+
+consteval fixed_string print_function_body(info func_reflection) {
+  info body = body_of(func_reflection);
+  for (info stmt : statements_of(body)) {
+    if (is_expression(stmt)) {
+      return print_expr(stmt);
+    }
+  }
+  return "0.0f";
+}
+
 #endif // DIFFERENTIATOR_H
