@@ -65,6 +65,20 @@ struct linear_poly_functor {
   }
 };
 
+struct math_test_functor {
+  float x;
+  float x_grad = 0.0f;
+
+  constexpr float operator()(float x) {
+    this->x = x;
+    return (((log(x) + sin(x)) + cos(x)) + pow(x, 3.0e+0f));
+  }
+
+  constexpr void backward(float out_grad = 1.0f) {
+    this->x_grad += ((((1.0e+0f / (x)) + (cos(x))) + (-sin(x))) + ((pow(x, 3.0e+0f)) * ((3.0e+0f) * (1.0e+0f / (x))))) * out_grad;
+  }
+};
+
 } // namespace func
 
 #endif // DERIVATIVES_H

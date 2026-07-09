@@ -111,7 +111,12 @@ consteval fixed_string print_expr(info E) {
   if (expression_kind_of(E) == expression_kind::function_call) {
     auto operands = operands_of(E);
     fixed_string callee_name = identifier_of(operands[0]);
-    return callee_name + fixed_string("(") + print_expr(operands[1]) + fixed_string(")");
+    fixed_string args_str = "";
+    for (size_t i = 1; i < operands.size(); ++i) {
+      if (i > 1) args_str = args_str + fixed_string(", ");
+      args_str = args_str + print_expr(operands[i]);
+    }
+    return callee_name + fixed_string("(") + args_str + fixed_string(")");
   }
   return "<unknown>";
 }
@@ -174,6 +179,30 @@ consteval fixed_string differentiate_expr(info E, info var_info) {
     if (callee_name == "exp_helper" || callee_name == "exp") {
       // d(exp(u)) = exp(u) * d(u)
       return simplify_mul(print_expr(E), differentiate_expr(operands[1], var_info));
+    }
+    if (callee_name == "log") {
+      // d(log(u)) = (1 / u) * d(u)
+      fixed_string inv = fixed_string("1.0e+0f / (") + print_expr(operands[1]) + fixed_string(")");
+      return simplify_mul(inv, differentiate_expr(operands[1], var_info));
+    }
+    if (callee_name == "sin") {
+      // d(sin(u)) = cos(u) * d(u)
+      fixed_string cos_val = fixed_string("cos(") + print_expr(operands[1]) + fixed_string(")");
+      return simplify_mul(cos_val, differentiate_expr(operands[1], var_info));
+    }
+    if (callee_name == "cos") {
+      // d(cos(u)) = -sin(u) * d(u)
+      fixed_string neg_sin_val = fixed_string("-sin(") + print_expr(operands[1]) + fixed_string(")");
+      return simplify_mul(neg_sin_val, differentiate_expr(operands[1], var_info));
+    }
+    if (callee_name == "pow") {
+      // d(u^v) = u^v * (d(v)*log(u) + v*(1/u)*d(u))
+      info u = operands[1];
+      info v = operands[2];
+      fixed_string term1 = simplify_mul(differentiate_expr(v, var_info), fixed_string("log(") + print_expr(u) + fixed_string(")"));
+      fixed_string inv_u = fixed_string("1.0e+0f / (") + print_expr(u) + fixed_string(")");
+      fixed_string term2 = simplify_mul(print_expr(v), simplify_mul(inv_u, differentiate_expr(u, var_info)));
+      return simplify_mul(print_expr(E), simplify_add(term1, term2));
     }
   }
   return "0.0f";

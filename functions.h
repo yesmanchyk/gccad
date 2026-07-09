@@ -21,6 +21,10 @@ constexpr float linear_poly(float x, float y) {
   return x * y + 3.0f * x;
 }
 
+constexpr float math_test(float x) {
+  return std::log(x) + std::sin(x) + std::cos(x) + std::pow(x, 3.0f);
+}
+
 } // namespace func
 
 #endif // FUNCTIONS_H

@@ -44,6 +44,15 @@ int main() {
   assert(std::abs(lp_fn.x_grad - expected_lp_x_grad) < 1e-5f);
   assert(std::abs(lp_fn.y_grad - expected_lp_y_grad) < 1e-5f);
 
+  // 5. Verify math_test_functor (log, sin, cos, pow)
+  func::math_test_functor math_fn;
+  float val_math = math_fn(2.0f); // x = 2.0f
+  math_fn.backward(1.5f); // out_grad = 1.5f
+  
+  float expected_math_grad = (1.0f / 2.0f + std::cos(2.0f) - std::sin(2.0f) + 3.0f * 2.0f * 2.0f) * 1.5f;
+  std::cout << "math_test_functor gradient: " << math_fn.x_grad << " (expected: " << expected_math_grad << ")\n";
+  assert(std::abs(math_fn.x_grad - expected_math_grad) < 1e-4f);
+
   std::cout << "All functor verification tests PASSED successfully!\n";
   return 0;
 }
