@@ -23,6 +23,6 @@ local/bin/g++ -std=c++26 -freflection main.cpp -o generator
 ```
 Run GCC tests for reflection
 ```
-cd build
+cd build/gcc
 make check-g++ RUNTESTFLAGS="dg.exp=reflect/*.C"
 ```
