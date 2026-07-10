@@ -79,6 +79,24 @@ struct math_test_functor {
   }
 };
 
+struct torch_test_functor {
+  float a;
+  float a_grad = 0.0f;
+  float b;
+  float b_grad = 0.0f;
+
+  constexpr float operator()(float a, float b) {
+    this->a = a;
+    this->b = b;
+    return ((pow(a, 3.0e+0f) * 3.0e+0f) - pow(b, 2.0e+0f));
+  }
+
+  constexpr void backward(float out_grad = 1.0f) {
+    this->a_grad += (((pow(a, 3.0e+0f)) * ((3.0e+0f) * (1.0e+0f / (a)))) * (3.0e+0f)) * out_grad;
+    this->b_grad += (-((pow(b, 2.0e+0f)) * ((2.0e+0f) * (1.0e+0f / (b))))) * out_grad;
+  }
+};
+
 } // namespace func
 
 #endif // DERIVATIVES_H

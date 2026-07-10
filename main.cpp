@@ -20,6 +20,8 @@ int main() {
   template for (constexpr auto member : members) {
     if (is_function(member)) {
       constexpr auto name = identifier_of(member);
+      std::cout << "worked on " << name.data() << "()\n";
+
       static constexpr auto params = std::define_static_array(parameters_of(member));
       constexpr auto orig_expr = print_function_body(member);
 

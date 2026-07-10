@@ -53,6 +53,21 @@ int main() {
   std::cout << "math_test_functor gradient: " << math_fn.x_grad << " (expected: " << expected_math_grad << ")\n";
   assert(std::abs(math_fn.x_grad - expected_math_grad) < 1e-4f);
 
+  // 6. Verify [2, 6] vector of torch_test_functor
+  func::torch_test_functor torch_fn;
+  float a = 2.0f, b = 6.0f;
+  float val_torch = torch_fn(a, b);
+  torch_fn.backward(1.0f);
+  
+  float expected_torch_a_grad = 9*a*a;
+  std::cout << "torch_test_functor a: " << torch_fn.a << ", a_grad: " << torch_fn.a_grad << " (expected: " << expected_torch_a_grad << ")\n";
+  assert(std::abs(torch_fn.a_grad - expected_torch_a_grad) < 1e-4f);
+
+  float expected_torch_b_grad = -2*b;
+  std::cout << "torch_test_functor b: " << torch_fn.b << ", b_grad: " << torch_fn.b_grad << " (expected: " << expected_torch_b_grad << ")\n";
+  assert(std::abs(torch_fn.b_grad - expected_torch_b_grad) < 1e-4f);
+
+
   std::cout << "All functor verification tests PASSED successfully!\n";
   return 0;
 }
