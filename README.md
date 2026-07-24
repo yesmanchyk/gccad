@@ -21,6 +21,8 @@ cd ..
 local/bin/g++ -std=c++26 -freflection main.cpp -o generator
 ./generator
 ```
+The generator should produce `derivatives.h` which can be included into an application like `test_derivatives.cpp`
+
 Run GCC tests for reflection
 ```
 cd build/gcc
