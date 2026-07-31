@@ -95,3 +95,32 @@ docker exec -w /src/gcc/yesmanchyk/ad gccad make bench
 # Clean build artifacts
 docker exec -w /src/gcc/yesmanchyk/ad gccad make clean
 ```
+
+---
+
+## Performance Benchmark Results
+
+Comparing execution speed of compiled PyTorch-like Functors (`derivatives.h`) vs. Opcode Interpreter (`op_code_exec`) over **10,000,000 iterations** compiled with `-O3`:
+
+```
+=== GCC Reflection AD Performance Benchmark ===
+Iterations per test: 10,000,000
+
+[1] Benchmark: linear_poly (2 variables)
+  - Functor (compiled C++ code) : 6.02 ms
+  - op_code_exec (Interpreter)   : 618.99 ms   (~102x speed difference)
+
+[2] Benchmark: math_test (transcendental functions: log, sin, cos, pow)
+  - Functor (compiled C++ code) : 125.74 ms
+  - op_code_exec (Interpreter)   : 205.85 ms   (~1.6x speed difference)
+
+[3] Benchmark: torch_test (multi-variable polynomial)
+  - Functor (compiled C++ code) : 80.77 ms
+  - op_code_exec (Interpreter)   : 1384.55 ms  (~17x speed difference)
+```
+
+### Key Takeaways
+
+- **Compiled Functors (`derivatives.h`)**: Offer native, fully vectorized C++ execution speed. Ideal for high-throughput runtime computation.
+- **Opcode Interpreter (`op_code_exec`)**: Executes opcode vectors directly in `consteval`/`constexpr` context. Ideal for zero-code-size compile-time constant evaluation (`static_assert`) or dynamic runtime evaluation without emitting new binary symbols.
+
