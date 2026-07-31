@@ -2,6 +2,8 @@
 
 A C++26 reflection-based header-only symbolic automatic differentiation library and code generator built on GCC's reflection implementation (`-freflection`).
 
+Requires https://github.com/yesmanchyk/gcc-mirror/tree/no_expression_kind
+
 ## Project Structure
 
 - **[functions.h](functions.h)**: Target C++ functions defined in `namespace func` (e.g. `sigmoid`, `linear_poly`, `math_test`, `torch_test`).
@@ -20,7 +22,7 @@ A C++26 reflection-based header-only symbolic automatic differentiation library 
 To build and run the reflection generator, you need the custom GCC reflection compiler branch:
 
 ```bash
-git clone --branch body_of --depth 1 \
+git clone --branch no_expression_kind --depth 1 \
   https://github.com/yesmanchyk/gcc-mirror
 docker build -t gccb .
 docker run --rm -it -v `pwd`:/src gccb
