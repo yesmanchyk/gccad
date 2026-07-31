@@ -314,10 +314,10 @@ struct op_code_gen {
 
 template <typename CodeGen>
 consteval typename CodeGen::result_type eval_expr_gen(info E, CodeGen& cg, std::span<const info> params) {
-  if (expression_kind_of(E) == expression_kind::literal) {
+  if (std::meta::is_literal(E)) {
     return cg.literal(display_string_of(E));
   }
-  if (expression_kind_of(E) == expression_kind::variable) {
+  if (std::meta::is_variable(E)) {
     fixed_string vname = identifier_of(E);
     int idx = 0;
     for (size_t i = 0; i < params.size(); ++i) {
@@ -328,7 +328,7 @@ consteval typename CodeGen::result_type eval_expr_gen(info E, CodeGen& cg, std::
     }
     return cg.load_var(vname, idx);
   }
-  if (expression_kind_of(E) == expression_kind::unary_op) {
+  if (std::meta::is_unary_operator(E)) {
     auto operands = operands_of(E);
     try {
       auto op = operator_of(E);
@@ -339,7 +339,7 @@ consteval typename CodeGen::result_type eval_expr_gen(info E, CodeGen& cg, std::
       return eval_expr_gen(operands[0], cg, params);
     }
   }
-  if (expression_kind_of(E) == expression_kind::binary_op) {
+  if (std::meta::is_binary_operator(E)) {
     auto operands = operands_of(E);
     auto op = operator_of(E);
     if (op == operators::op_equals) {
@@ -358,7 +358,7 @@ consteval typename CodeGen::result_type eval_expr_gen(info E, CodeGen& cg, std::
       return cg.div(eval_expr_gen(operands[0], cg, params), eval_expr_gen(operands[1], cg, params));
     }
   }
-  if (expression_kind_of(E) == expression_kind::function_call) {
+  if (std::meta::is_function_call(E)) {
     auto operands = operands_of(E);
     fixed_string callee_name = identifier_of(operands[0]);
     if (callee_name == "exp_helper" || callee_name == "exp") {
@@ -382,16 +382,16 @@ consteval typename CodeGen::result_type eval_expr_gen(info E, CodeGen& cg, std::
 
 template <typename CodeGen>
 consteval typename CodeGen::result_type differentiate_expr_gen(info E, info var_info, CodeGen& cg, std::span<const info> params) {
-  if (expression_kind_of(E) == expression_kind::literal) {
+  if (std::meta::is_literal(E)) {
     return cg.literal(0.0f);
   }
-  if (expression_kind_of(E) == expression_kind::variable) {
+  if (std::meta::is_variable(E)) {
     if (identifier_of(operands_of(E)[0]) == identifier_of(var_info)) {
       return cg.literal(1.0f);
     }
     return cg.literal(0.0f);
   }
-  if (expression_kind_of(E) == expression_kind::unary_op) {
+  if (std::meta::is_unary_operator(E)) {
     auto operands = operands_of(E);
     try {
       auto op = operator_of(E);
@@ -402,7 +402,7 @@ consteval typename CodeGen::result_type differentiate_expr_gen(info E, info var_
       return differentiate_expr_gen(operands[0], var_info, cg, params);
     }
   }
-  if (expression_kind_of(E) == expression_kind::binary_op) {
+  if (std::meta::is_binary_operator(E)) {
     auto operands = operands_of(E);
     auto op = operator_of(E);
     if (op == operators::op_equals) {
@@ -431,7 +431,7 @@ consteval typename CodeGen::result_type differentiate_expr_gen(info E, info var_
       return cg.div(num, den);
     }
   }
-  if (expression_kind_of(E) == expression_kind::function_call) {
+  if (std::meta::is_function_call(E)) {
     auto operands = operands_of(E);
     fixed_string callee_name = identifier_of(operands[0]);
     if (callee_name == "exp_helper" || callee_name == "exp") {
