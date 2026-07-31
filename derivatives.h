@@ -25,11 +25,11 @@ struct sigmoid_functor {
 
   constexpr float operator()(float x) {
     this->x = x;
-    return ((exp_helper(-(x)) + 1.0e+0f) + 1.0e+0f);
+    return ((exp(-(x))) + (1.0e+0f)) + (1.0e+0f);
   }
 
   constexpr void backward(float out_grad = 1.0f) {
-    this->x_grad += ((exp_helper(-(x))) * (-(1.0f))) * out_grad;
+    this->x_grad += ((exp(-(x))) * (-(1.0f))) * out_grad;
   }
 };
 
@@ -39,7 +39,7 @@ struct custom_poly_functor {
 
   constexpr float operator()(float x) {
     this->x = x;
-    return ((x * x) + (x * 2.0e+0f));
+    return ((x) * (x)) + ((x) * (2.0e+0f));
   }
 
   constexpr void backward(float out_grad = 1.0f) {
@@ -56,7 +56,7 @@ struct linear_poly_functor {
   constexpr float operator()(float x, float y) {
     this->x = x;
     this->y = y;
-    return ((x * y) + (x * 3.0e+0f));
+    return ((x) * (y)) + ((x) * (3.0e+0f));
   }
 
   constexpr void backward(float out_grad = 1.0f) {
@@ -71,11 +71,11 @@ struct math_test_functor {
 
   constexpr float operator()(float x) {
     this->x = x;
-    return (((log(x) + sin(x)) + cos(x)) + pow(x, 3.0e+0f));
+    return (((log(x)) + (sin(x))) + (cos(x))) + (pow(x, 3.0e+0f));
   }
 
   constexpr void backward(float out_grad = 1.0f) {
-    this->x_grad += ((((1.0e+0f / (x)) + (cos(x))) + (-sin(x))) + ((pow(x, 3.0e+0f)) * ((3.0e+0f) * (1.0e+0f / (x))))) * out_grad;
+    this->x_grad += (((((1.0f) / (x)) + (cos(x))) + (-(sin(x)))) + ((pow(x, 3.0e+0f)) * ((3.0e+0f) * ((1.0f) / (x))))) * out_grad;
   }
 };
 
@@ -88,12 +88,12 @@ struct torch_test_functor {
   constexpr float operator()(float a, float b) {
     this->a = a;
     this->b = b;
-    return ((pow(a, 3.0e+0f) * 3.0e+0f) - pow(b, 2.0e+0f));
+    return ((pow(a, 3.0e+0f)) * (3.0e+0f)) - (pow(b, 2.0e+0f));
   }
 
   constexpr void backward(float out_grad = 1.0f) {
-    this->a_grad += (((pow(a, 3.0e+0f)) * ((3.0e+0f) * (1.0e+0f / (a)))) * (3.0e+0f)) * out_grad;
-    this->b_grad += (-((pow(b, 2.0e+0f)) * ((2.0e+0f) * (1.0e+0f / (b))))) * out_grad;
+    this->a_grad += (((pow(a, 3.0e+0f)) * ((3.0e+0f) * ((1.0f) / (a)))) * (3.0e+0f)) * out_grad;
+    this->b_grad += (-((pow(b, 2.0e+0f)) * ((2.0e+0f) * ((1.0f) / (b))))) * out_grad;
   }
 };
 

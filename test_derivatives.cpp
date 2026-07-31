@@ -2,7 +2,22 @@
 #include <cmath>
 #include <cassert>
 #include "functions.h"
+#include "differentiator.h"
 #include "derivatives.h"
+
+// Compile-Time (consteval) Verification of op_code_gen & op_code_exec
+consteval bool test_compile_time_op_code_exec() {
+  constexpr auto params = std::define_static_array(parameters_of( ^^func::linear_poly ));
+  constexpr auto code_dx = generate_op_code_wrt( ^^func::linear_poly, params[0]);
+  constexpr auto code_dy = generate_op_code_wrt( ^^func::linear_poly, params[1]);
+  
+  float args[2] = { 2.0f, 5.0f };
+  float res_dx = op_code_exec(code_dx, args); // df/dx = y + 3 = 5 + 3 = 8.0f
+  float res_dy = op_code_exec(code_dy, args); // df/dy = x = 2.0f
+  return (res_dx == 8.0f) && (res_dy == 2.0f);
+}
+
+static_assert(test_compile_time_op_code_exec(), "op_code_exec compile-time static_assert failed!");
 
 int main() {
   // 1. Verify exp_helper_functor
@@ -53,7 +68,7 @@ int main() {
   std::cout << "math_test_functor gradient: " << math_fn.x_grad << " (expected: " << expected_math_grad << ")\n";
   assert(std::abs(math_fn.x_grad - expected_math_grad) < 1e-4f);
 
-  // 6. Verify [2, 6] vector of torch_test_functor
+  // 6. Verify vector of torch_test_functor
   func::torch_test_functor torch_fn;
   float a = 2.0f, b = 6.0f;
   float val_torch = torch_fn(a, b);
@@ -67,7 +82,20 @@ int main() {
   std::cout << "torch_test_functor b: " << torch_fn.b << ", b_grad: " << torch_fn.b_grad << " (expected: " << expected_torch_b_grad << ")\n";
   assert(std::abs(torch_fn.b_grad - expected_torch_b_grad) < 1e-4f);
 
+  // 7. Verify op_code_gen & op_code_exec against derivatives.h functors
+  constexpr auto lp_params = std::define_static_array(parameters_of( ^^func::linear_poly ));
+  constexpr auto lp_code_dx = generate_op_code_wrt( ^^func::linear_poly, lp_params[0]);
+  constexpr auto lp_code_dy = generate_op_code_wrt( ^^func::linear_poly, lp_params[1]);
 
-  std::cout << "All functor verification tests PASSED successfully!\n";
+  std::vector<float> lp_inputs = { 2.0f, 5.0f };
+  float op_dx = op_code_exec(lp_code_dx, lp_inputs);
+  float op_dy = op_code_exec(lp_code_dy, lp_inputs);
+
+  std::cout << "op_code_exec linear_poly df/dx: " << op_dx << " (functor: " << (lp_fn.x_grad / 3.0f) << ")\n";
+  std::cout << "op_code_exec linear_poly df/dy: " << op_dy << " (functor: " << (lp_fn.y_grad / 3.0f) << ")\n";
+  assert(std::abs(op_dx - 8.0f) < 1e-5f);
+  assert(std::abs(op_dy - 2.0f) < 1e-5f);
+
+  std::cout << "All functor & op_code_exec verification tests PASSED successfully!\n";
   return 0;
 }
