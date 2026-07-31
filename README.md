@@ -9,6 +9,7 @@ A C++26 reflection-based header-only symbolic automatic differentiation library 
 - **[main.cpp](main.cpp)**: Generator executable driver that reflects all functions in `namespace func` using `members_of`, iterates over them using `template for`, and generates PyTorch-like functor structs into `derivatives.h`.
 - **[derivatives.h](derivatives.h)**: Generated header containing `constexpr` functor structs (`<func>_functor`) with member variables, gradient storage, and `.backward(float out_grad)` methods.
 - **[test_derivatives.cpp](test_derivatives.cpp)**: Mathematical verification test suite.
+- **[benchmark.cpp](benchmark.cpp)**: Performance benchmark suite comparing compiled functor execution against `op_code_exec` bytecode interpreter speed.
 - **[CMakeLists.txt](CMakeLists.txt)**: CMake build configuration.
 - **[Makefile](Makefile)**: GNU Make build configuration.
 
@@ -60,7 +61,7 @@ Custom compiler path inside Docker container:
    docker exec -w /src/gcc/yesmanchyk/ad gccad cmake -B build -DCMAKE_CXX_COMPILER=/src/gcc/yesmanchyk/gcc-mirror-install/bin/g++
    ```
 
-2. **Build targets (compiles `generator`, executes it to output `derivatives.h`, and compiles `test_derivatives`)**:
+2. **Build targets (compiles `generator`, executes it to output `derivatives.h`, and compiles `test_derivatives` and `benchmark`)**:
    ```bash
    docker exec -w /src/gcc/yesmanchyk/ad gccad cmake --build build
    ```
@@ -68,6 +69,11 @@ Custom compiler path inside Docker container:
 3. **Run verification test suite**:
    ```bash
    docker exec -w /src/gcc/yesmanchyk/ad/build gccad ./test_derivatives
+   ```
+
+4. **Run performance benchmark**:
+   ```bash
+   docker exec -w /src/gcc/yesmanchyk/ad/build gccad ./benchmark
    ```
 
 ---
@@ -82,6 +88,9 @@ docker exec -w /src/gcc/yesmanchyk/ad gccad make
 
 # Build and execute verification tests
 docker exec -w /src/gcc/yesmanchyk/ad gccad make run
+
+# Build and execute performance benchmark
+docker exec -w /src/gcc/yesmanchyk/ad gccad make bench
 
 # Clean build artifacts
 docker exec -w /src/gcc/yesmanchyk/ad gccad make clean

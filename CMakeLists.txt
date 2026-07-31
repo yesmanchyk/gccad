@@ -24,3 +24,9 @@ add_executable(test_derivatives test_derivatives.cpp ${CMAKE_CURRENT_BINARY_DIR}
 
 # Ensure header search path includes source dir and binary build dir for derivatives.h
 target_include_directories(test_derivatives PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+# 4. Target for benchmark executable
+add_executable(benchmark benchmark.cpp ${CMAKE_CURRENT_BINARY_DIR}/derivatives.h)
+target_include_directories(benchmark PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_options(benchmark PRIVATE -O3)
+

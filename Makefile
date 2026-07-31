@@ -15,7 +15,13 @@ test_derivatives: test_derivatives.cpp derivatives.h
 run: test_derivatives
 	./test_derivatives
 
-clean:
-	rm -f generator derivatives.h test_derivatives
+benchmark: benchmark.cpp derivatives.h
+	$(CXX) $(CXXFLAGS) -O3 benchmark.cpp -o benchmark
 
-.PHONY: all run clean
+bench: benchmark
+	./benchmark
+
+clean:
+	rm -f generator derivatives.h test_derivatives benchmark
+
+.PHONY: all run bench clean
